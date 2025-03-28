@@ -82,7 +82,14 @@ else:
         """, unsafe_allow_html=True)
         
         st.write(f"Welcome, **{st.session_state.username}** ({st.session_state.role})")
-        st.write(f"Login time: {st.session_state.login_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        # Handle login_time safely in case it's None
+        login_time_display = "Not recorded"
+        if hasattr(st.session_state, 'login_time') and st.session_state.login_time:
+            try:
+                login_time_display = st.session_state.login_time.strftime('%Y-%m-%d %H:%M:%S')
+            except:
+                pass
+        st.write(f"Login time: {login_time_display}")
         
         st.divider()
         

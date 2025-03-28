@@ -233,58 +233,167 @@ def query_to_dataframe(query, params=None):
     """Execute a query and return results as a pandas DataFrame"""
     conn = get_connection()
     
-    if params:
-        df = pd.read_sql_query(query, conn, params=params)
-    else:
-        df = pd.read_sql_query(query, conn)
-    
-    conn.close()
-    return df
+    try:
+        if params:
+            df = pd.read_sql_query(query, conn, params=params)
+        else:
+            df = pd.read_sql_query(query, conn)
+        
+        # Handle date columns gracefully
+        for col in df.columns:
+            if col.endswith('_date') or col in ['created_at', 'last_login', 'bill_date', 'due_date', 'date']:
+                try:
+                    df[col] = pd.to_datetime(df[col], errors='coerce')
+                except:
+                    pass  # Keep as is if conversion fails
+        
+        return df
+    except Exception as e:
+        print(f"Error in query_to_dataframe: {e}")
+        # Return empty dataframe with expected columns if possible
+        return pd.DataFrame()
+    finally:
+        conn.close()
 
 def insert_record(table, data):
     """Insert a record into a table and return the ID"""
-    conn = get_connection()
+    conn = None
+    retries = 3
+    retry_delay = 0.5
+    last_id = None
     
-    columns = ', '.join(data.keys())
-    placeholders = ', '.join(['?' for _ in data])
-    values = tuple(data.values())
-    
-    query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
-    
-    cursor = conn.cursor()
-    cursor.execute(query, values)
-    last_id = cursor.lastrowid
-    
-    conn.commit()
-    conn.close()
+    # Try multiple times to handle potential database locks
+    for attempt in range(retries):
+        try:
+            conn = get_connection()
+            
+            columns = ', '.join(data.keys())
+            placeholders = ', '.join(['?' for _ in data])
+            values = tuple(data.values())
+            
+            query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+            
+            cursor = conn.cursor()
+            cursor.execute(query, values)
+            last_id = cursor.lastrowid
+            
+            conn.commit()
+            break  # Success, exit the retry loop
+        except sqlite3.OperationalError as e:
+            # If database is locked, retry after a delay
+            if "database is locked" in str(e) and attempt < retries - 1:
+                if conn:
+                    conn.close()
+                import time
+                time.sleep(retry_delay)
+                print(f"Database locked, retrying... (attempt {attempt+1})")
+            else:
+                # Re-raise the exception if it's not a locking issue or we've exhausted retries
+                if conn:
+                    conn.close()
+                print(f"Database error: {e}")
+                return None
+        except Exception as e:
+            # Handle any other exceptions
+            if conn:
+                conn.close()
+            print(f"Error inserting record: {e}")
+            return None
+        finally:
+            if conn:
+                conn.close()
     
     return last_id
 
 def update_record(table, data, condition):
     """Update a record in a table"""
-    conn = get_connection()
+    conn = None
+    retries = 3
+    retry_delay = 0.5
     
-    set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
-    values = list(data.values())
+    # Try multiple times to handle potential database locks
+    for attempt in range(retries):
+        try:
+            conn = get_connection()
+            
+            set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
+            values = list(data.values())
+            
+            where_clause = ' AND '.join([f"{key} = ?" for key in condition.keys()])
+            values.extend(condition.values())
+            
+            query = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
+            
+            conn.execute(query, values)
+            conn.commit()
+            break  # Success, exit the retry loop
+        except sqlite3.OperationalError as e:
+            # If database is locked, retry after a delay
+            if "database is locked" in str(e) and attempt < retries - 1:
+                if conn:
+                    conn.close()
+                import time
+                time.sleep(retry_delay)
+                print(f"Database locked during update, retrying... (attempt {attempt+1})")
+            else:
+                # Re-raise the exception if it's not a locking issue or we've exhausted retries
+                if conn:
+                    conn.close()
+                print(f"Database error during update: {e}")
+                return False
+        except Exception as e:
+            # Handle any other exceptions
+            if conn:
+                conn.close()
+            print(f"Error updating record: {e}")
+            return False
+        finally:
+            if conn:
+                conn.close()
     
-    where_clause = ' AND '.join([f"{key} = ?" for key in condition.keys()])
-    values.extend(condition.values())
-    
-    query = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
-    
-    conn.execute(query, values)
-    conn.commit()
-    conn.close()
+    return True
 
 def delete_record(table, condition):
     """Delete a record from a table"""
-    conn = get_connection()
+    conn = None
+    retries = 3
+    retry_delay = 0.5
     
-    where_clause = ' AND '.join([f"{key} = ?" for key in condition.keys()])
-    values = list(condition.values())
+    # Try multiple times to handle potential database locks
+    for attempt in range(retries):
+        try:
+            conn = get_connection()
+            
+            where_clause = ' AND '.join([f"{key} = ?" for key in condition.keys()])
+            values = list(condition.values())
+            
+            query = f"DELETE FROM {table} WHERE {where_clause}"
+            
+            conn.execute(query, values)
+            conn.commit()
+            break  # Success, exit the retry loop
+        except sqlite3.OperationalError as e:
+            # If database is locked, retry after a delay
+            if "database is locked" in str(e) and attempt < retries - 1:
+                if conn:
+                    conn.close()
+                import time
+                time.sleep(retry_delay)
+                print(f"Database locked during delete, retrying... (attempt {attempt+1})")
+            else:
+                # Re-raise the exception if it's not a locking issue or we've exhausted retries
+                if conn:
+                    conn.close()
+                print(f"Database error during delete: {e}")
+                return False
+        except Exception as e:
+            # Handle any other exceptions
+            if conn:
+                conn.close()
+            print(f"Error deleting record: {e}")
+            return False
+        finally:
+            if conn:
+                conn.close()
     
-    query = f"DELETE FROM {table} WHERE {where_clause}"
-    
-    conn.execute(query, values)
-    conn.commit()
-    conn.close()
+    return True

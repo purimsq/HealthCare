@@ -203,6 +203,10 @@ def admin_settings():
                     ["Change Status", "Reset Password", "Delete User"]
                 )
                 
+                # Initialize variables to avoid "possibly unbound" errors
+                new_status = "active"  # Default value
+                new_password = ""
+                
                 if action == "Change Status":
                     new_status = st.selectbox("New Status", ["active", "inactive", "suspended"])
                 elif action == "Reset Password":
