@@ -72,6 +72,15 @@ else:
     
     # Sidebar with navigation
     with st.sidebar:
+        # Apply beige background to sidebar
+        st.markdown("""
+        <style>
+        [data-testid="stSidebar"] {
+            background-color: #f0e6d2;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
         st.write(f"Welcome, **{st.session_state.username}** ({st.session_state.role})")
         st.write(f"Login time: {st.session_state.login_time.strftime('%Y-%m-%d %H:%M:%S')}")
         
@@ -153,14 +162,15 @@ else:
             pending_prescriptions = pharmacy.get_pending_prescriptions_count()
             st.metric("Pending Prescriptions", pending_prescriptions)
         
-        # Recent activities
-        st.subheader("Recent Activities")
-        recent_activities = audit.get_recent_activities(limit=10)
-        
-        if recent_activities.empty:
-            st.info("No recent activities found.")
-        else:
-            st.dataframe(recent_activities, use_container_width=True)
+        # Recent activities - Only visible to admin users
+        if st.session_state.role == "admin":
+            st.subheader("Recent Activities")
+            recent_activities = audit.get_recent_activities(limit=10)
+            
+            if recent_activities.empty:
+                st.info("No recent activities found.")
+            else:
+                st.dataframe(recent_activities, use_container_width=True)
             
     elif selected == "Patients":
         patient.patient_management()
