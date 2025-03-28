@@ -5,6 +5,9 @@ import database
 from datetime import datetime
 import audit
 import time
+import os
+from PIL import Image
+import base64
 
 def hash_password(password):
     """Hash a password for storing."""
@@ -41,8 +44,51 @@ def validate_email(email):
         return True
     return False
 
+def get_base64_encoded_image(image_path):
+    """Get base64 encoded image for background styling"""
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+def set_background_image(image_path):
+    """Set background image using CSS"""
+    encoded_image = get_base64_encoded_image(image_path)
+    background_image = f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/jpg;base64,{encoded_image}");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }}
+    .block-container {{
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 2rem;
+        border-radius: 10px;
+    }}
+    </style>
+    """
+    st.markdown(background_image, unsafe_allow_html=True)
+
 def login_form():
     """Display and handle login form."""
+    # Add hospital background - check both possible locations
+    if os.path.exists("hospital_background.jpg"):
+        set_background_image("hospital_background.jpg")
+    elif os.path.exists("static/hospital_background.jpg"):
+        set_background_image("static/hospital_background.jpg")
+    
+    # Add hospital logo - check both possible locations
+    logo_path = None
+    if os.path.exists("hospital_logo.png"):
+        logo_path = "hospital_logo.png"
+    elif os.path.exists("static/hospital_logo.png"):
+        logo_path = "static/hospital_logo.png"
+    
+    if logo_path:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.image(logo_path, width=250)
+    
     st.subheader("Login")
     
     # Create form
@@ -108,6 +154,25 @@ def login_form():
 
 def register_form():
     """Display and handle user registration form."""
+    # Add hospital background if not already done in login_form
+    if not any('background-image' in s for s in st.session_state.get('_custom_css', [])):
+        if os.path.exists("hospital_background.jpg"):
+            set_background_image("hospital_background.jpg")
+        elif os.path.exists("static/hospital_background.jpg"):
+            set_background_image("static/hospital_background.jpg")
+    
+    # Add hospital logo - check both possible locations
+    logo_path = None
+    if os.path.exists("hospital_logo.png"):
+        logo_path = "hospital_logo.png"
+    elif os.path.exists("static/hospital_logo.png"):
+        logo_path = "static/hospital_logo.png"
+    
+    if logo_path:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.image(logo_path, width=250)
+    
     st.subheader("Register")
     
     # Get roles for dropdown (excluding admin role)

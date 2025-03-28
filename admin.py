@@ -5,6 +5,8 @@ import pandas as pd
 import time
 from datetime import datetime
 import audit
+import os
+from PIL import Image
 
 def hash_password(password):
     """Hash a password for storing."""
@@ -12,6 +14,18 @@ def hash_password(password):
 
 def create_admin_form():
     """Display and handle the admin creation form."""
+    # Add hospital logo - check both possible locations
+    logo_path = None
+    if os.path.exists("hospital_logo.png"):
+        logo_path = "hospital_logo.png"
+    elif os.path.exists("static/hospital_logo.png"):
+        logo_path = "static/hospital_logo.png"
+    
+    if logo_path:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.image(logo_path, width=250)
+    
     st.subheader("Create Administrator Account")
     
     with st.form("admin_creation_form"):

@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import time
 import audit
+import utils
 
 def get_revenue_for_today():
     """Get the total revenue for today."""
@@ -107,7 +108,7 @@ def billing_management():
             # Format dates and amounts
             bills_df['bill_date'] = pd.to_datetime(bills_df['bill_date']).dt.strftime('%Y-%m-%d')
             bills_df['due_date'] = pd.to_datetime(bills_df['due_date']).dt.strftime('%Y-%m-%d')
-            bills_df['amount'] = bills_df['amount'].apply(lambda x: f"${x:.2f}")
+            bills_df['amount'] = bills_df['amount'].apply(utils.format_currency)
             
             # Rename columns for display
             display_df = bills_df.rename(columns={
@@ -127,7 +128,7 @@ def billing_management():
         if not bills_df.empty:
             st.subheader("Bill Details")
             
-            bill_options = [f"Bill #{row['bill_id']} - {row['patient_name']} - {row['amount']}" 
+            bill_options = [f"Bill #{row['bill_id']} - {row['patient_name']} - {utils.format_currency(row['amount'])}" 
                            for _, row in bills_df.iterrows()]
             
             selected_bill = st.selectbox("Select Bill", ["Select a bill"] + bill_options)
@@ -163,7 +164,7 @@ def billing_management():
                         st.write(f"**Bill ID:** {bill[0]}")
                         st.write(f"**Patient:** {bill[2]}")
                         st.write(f"**Service:** {bill[3]}")
-                        st.write(f"**Amount:** ${bill[4]:.2f}")
+                        st.write(f"**Amount:** {utils.format_currency(bill[4])}")
                     
                     with col2:
                         st.write(f"**Bill Date:** {bill[5]}")
@@ -219,7 +220,7 @@ def billing_management():
                             
                             with col1:
                                 service_description = st.text_input("Service Description", bill[3])
-                                amount = st.number_input("Amount ($)", min_value=0.0, value=float(bill[4]), step=10.0)
+                                amount = st.number_input("Amount (KSh)", min_value=0.0, value=float(bill[4]), step=10.0)
                                 due_date = st.date_input("Due Date", datetime.strptime(bill[6], '%Y-%m-%d'))
                             
                             with col2:
@@ -290,7 +291,7 @@ def billing_management():
                 )
                 
                 service_description = st.text_input("Service Description*")
-                amount = st.number_input("Amount ($)*", min_value=0.0, step=10.0)
+                amount = st.number_input("Amount (KSh)*", min_value=0.0, step=10.0)
             
             with col2:
                 bill_date = st.date_input("Bill Date", datetime.now().date())
@@ -376,7 +377,7 @@ def billing_management():
             )
             
             # Add formatting for display
-            unpaid_bills_df['display_amount'] = unpaid_bills_df['amount'].apply(lambda x: f"${x:.2f}")
+            unpaid_bills_df['display_amount'] = unpaid_bills_df['amount'].apply(utils.format_currency)
             
             # Highlight overdue bills
             unpaid_bills_df['status_display'] = unpaid_bills_df.apply(
@@ -393,7 +394,7 @@ def billing_management():
             # Payment processing
             st.subheader("Process Payment")
             
-            bill_options = [f"Bill #{row['bill_id']} - {row['patient_name']} - ${row['amount']:.2f}" 
+            bill_options = [f"Bill #{row['bill_id']} - {row['patient_name']} - {utils.format_currency(row['amount'])}" 
                            for _, row in unpaid_bills_df.iterrows()]
             
             selected_payment_bill = st.selectbox("Select Bill", ["Select a bill"] + bill_options, key="payment_bill")
@@ -409,7 +410,7 @@ def billing_management():
                     
                     with col1:
                         payment_amount = st.number_input(
-                            "Payment Amount ($)",
+                            "Payment Amount (KSh)",
                             min_value=0.0,
                             max_value=float(bill_details['amount']),
                             value=float(bill_details['amount']),
@@ -451,7 +452,7 @@ def billing_management():
                             
                             # Construct payment details for audit
                             payment_details = (
-                                f"Amount: ${payment_amount:.2f}, Method: {payment_method}, "
+                                f"Amount: {utils.format_currency(payment_amount)}, Method: {payment_method}, "
                                 f"Reference: {payment_reference}, Notes: {payment_notes}"
                             )
                             

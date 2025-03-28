@@ -150,7 +150,7 @@ else:
             
             # Today's revenue
             today_revenue = billing.get_revenue_for_today()
-            st.metric("Today's Revenue", f"${today_revenue}")
+            st.metric("Today's Revenue", utils.format_currency(today_revenue))
         
         with col3:
             st.subheader("Staff Status")

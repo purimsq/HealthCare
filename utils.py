@@ -98,7 +98,7 @@ def status_color(status):
 
 def format_currency(amount):
     """
-    Format a number as currency.
+    Format a number as currency (Kenyan Shilling).
     
     Args:
         amount (float): The amount to format
@@ -107,9 +107,9 @@ def format_currency(amount):
         str: Formatted currency string
     """
     if amount is None:
-        return "$0.00"
+        return "KSh 0.00"
     
-    return f"${amount:,.2f}"
+    return f"KSh {amount:,.2f}"
 
 def calculate_age(birth_date):
     """
