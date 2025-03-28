@@ -24,7 +24,7 @@ database.init_db()
 
 # Set page config
 st.set_page_config(
-    page_title="Hospital Management System",
+    page_title="St Mary's Hospital",
     page_icon="🏥",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -48,7 +48,7 @@ if 'login_time' not in st.session_state:
 st.session_state.admin_exists = auth.check_admin_exists()
 
 # Title
-st.title("🏥 Hospital Management System")
+st.title("🏥 St Mary's Hospital")
 
 # If user is not logged in
 if not st.session_state.logged_in:
@@ -217,4 +217,4 @@ else:
 
 # Add footer
 st.markdown("---")
-st.markdown("<div style='text-align: center'>© 2025 Hospital Management System</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center'>© 2025 St Mary's Hospital</div>", unsafe_allow_html=True)

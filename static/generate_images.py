@@ -40,7 +40,7 @@ def generate_hospital_logo():
         # Fallback to default font
         font = ImageFont.load_default()
     
-    draw.text((width//2, height - 50), "COUNTY HOSPITAL", fill=(70, 70, 70), font=font, anchor="ms")
+    draw.text((width//2, height - 50), "ST MARY'S HOSPITAL", fill=(70, 70, 70), font=font, anchor="ms")
     
     # Save the logo
     image.save('hospital_logo.png')
