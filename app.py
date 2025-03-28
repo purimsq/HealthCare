@@ -210,4 +210,4 @@ else:
 
 # Add footer
 st.markdown("---")
-st.markdown("<div style='text-align: center'>© 2023 Hospital Management System</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center'>© 2025 Hospital Management System</div>", unsafe_allow_html=True)

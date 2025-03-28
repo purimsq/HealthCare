@@ -77,18 +77,6 @@ def login_form():
     elif os.path.exists("static/hospital_background.jpg"):
         set_background_image("static/hospital_background.jpg")
     
-    # Add hospital logo - check both possible locations
-    logo_path = None
-    if os.path.exists("hospital_logo.png"):
-        logo_path = "hospital_logo.png"
-    elif os.path.exists("static/hospital_logo.png"):
-        logo_path = "static/hospital_logo.png"
-    
-    if logo_path:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            st.image(logo_path, width=250)
-    
     st.subheader("Login")
     
     # Create form
@@ -160,18 +148,6 @@ def register_form():
             set_background_image("hospital_background.jpg")
         elif os.path.exists("static/hospital_background.jpg"):
             set_background_image("static/hospital_background.jpg")
-    
-    # Add hospital logo - check both possible locations
-    logo_path = None
-    if os.path.exists("hospital_logo.png"):
-        logo_path = "hospital_logo.png"
-    elif os.path.exists("static/hospital_logo.png"):
-        logo_path = "static/hospital_logo.png"
-    
-    if logo_path:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            st.image(logo_path, width=250)
     
     st.subheader("Register")
     
