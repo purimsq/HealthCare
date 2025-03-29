@@ -33,10 +33,21 @@ st.set_page_config(
 # Apply custom CSS for button hover effects
 st.markdown("""
 <style>
-    .stButton button:hover {
+    /* Strong selector to override Streamlit's default button hover styles */
+    .stButton button:hover, 
+    button[kind="primary"]:hover,
+    .stButton > button:hover,
+    .stApp button:hover,
+    div[data-testid="stFormSubmitButton"] button:hover {
         background-color: #4169E1 !important;  /* Royal Blue */
         border-color: #4169E1 !important;
         color: white !important;
+        transition: all 0.3s ease !important;
+    }
+    /* Override Streamlit's primary color in all components */
+    :root {
+        --primary-color: #f0e6d2;
+        --hover-color: #4169E1 !important;
     }
 </style>
 """, unsafe_allow_html=True)

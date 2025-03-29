@@ -4,7 +4,7 @@ address = "0.0.0.0"
 port = 5000
 
 [theme]
-primaryColor = "#f0e6d2"
+primaryColor = "#4169E1"  # Changed to blue for hover effect
 backgroundColor = "#ffffff"
 secondaryBackgroundColor = "#f5f5f5"
 textColor = "#262730"
