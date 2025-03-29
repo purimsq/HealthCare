@@ -30,6 +30,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Apply custom CSS for button hover effects
+st.markdown("""
+<style>
+    .stButton button:hover {
+        background-color: #4169E1 !important;  /* Royal Blue */
+        border-color: #4169E1 !important;
+        color: white !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Initialize session state variables if they don't exist
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
