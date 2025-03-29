@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
+import utils
 
 def reports_management():
     """Reports and analytics page."""
@@ -274,7 +275,7 @@ def reports_management():
                 (start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
             )[0]
             
-            st.metric("Total Revenue", f"${total_revenue:,.2f}")
+            st.metric("Total Revenue", utils.format_currency(total_revenue))
         
         with col2:
             # Pending payments
@@ -286,7 +287,7 @@ def reports_management():
                 (start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
             )[0]
             
-            st.metric("Pending Payments", f"${pending_amount:,.2f}")
+            st.metric("Pending Payments", utils.format_currency(pending_amount))
         
         with col3:
             # Average bill amount
@@ -298,7 +299,7 @@ def reports_management():
                 (start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
             )[0]
             
-            st.metric("Average Bill", f"${avg_bill:,.2f}")
+            st.metric("Average Bill", utils.format_currency(avg_bill))
         
         # Revenue over time
         st.write("#### Revenue Over Time")
@@ -342,7 +343,7 @@ def reports_management():
                     x='date', 
                     y='revenue',
                     title='Revenue Over Time',
-                    labels={'date': 'Date', 'revenue': 'Revenue ($)'}
+                    labels={'date': 'Date', 'revenue': 'Revenue (KSh)'}
                 )
             else:
                 fig = px.line(
@@ -350,7 +351,7 @@ def reports_management():
                     x='date', 
                     y='revenue',
                     title='Revenue Over Time',
-                    labels={'date': 'Date', 'revenue': 'Revenue ($)'}
+                    labels={'date': 'Date', 'revenue': 'Revenue (KSh)'}
                 )
             
             fig.update_traces(line_color='#4c9085')
@@ -379,8 +380,8 @@ def reports_management():
             st.info("No revenue by service data available for the selected period.")
         else:
             # Format currency columns
-            revenue_by_service['total_amount'] = revenue_by_service['total_amount'].apply(lambda x: f"${x:,.2f}")
-            revenue_by_service['avg_amount'] = revenue_by_service['avg_amount'].apply(lambda x: f"${x:,.2f}")
+            revenue_by_service['total_amount'] = revenue_by_service['total_amount'].apply(utils.format_currency)
+            revenue_by_service['avg_amount'] = revenue_by_service['avg_amount'].apply(utils.format_currency)
             
             # Display as table
             st.dataframe(revenue_by_service, use_container_width=True)
@@ -429,7 +430,7 @@ def reports_management():
                 """
             )[0]
             
-            st.metric("Total Inventory Value", f"${total_inventory_value:,.2f}")
+            st.metric("Total Inventory Value", utils.format_currency(total_inventory_value))
         
         with col2:
             # Low stock items
@@ -472,11 +473,11 @@ def reports_management():
         if inventory_by_category.empty:
             st.info("No inventory data available.")
         else:
-            # Format currency column
-            inventory_by_category['total_value'] = inventory_by_category['total_value'].apply(lambda x: f"${x:,.2f}")
+            # Store numeric values for chart before formatting
+            inventory_by_category['value_numeric'] = inventory_by_category['total_value']
             
-            # Numeric value for chart
-            inventory_by_category['value_numeric'] = pd.to_numeric(inventory_by_category['total_value'].str.replace('$', '').str.replace(',', ''))
+            # Format currency column for display
+            inventory_by_category['total_value'] = inventory_by_category['total_value'].apply(utils.format_currency)
             
             # Display as table and chart
             st.dataframe(
@@ -489,7 +490,7 @@ def reports_management():
                 x='category', 
                 y='value_numeric',
                 title='Inventory Value by Category',
-                labels={'category': 'Category', 'value_numeric': 'Total Value ($)'},
+                labels={'category': 'Category', 'value_numeric': 'Total Value (KSh)'},
                 color_discrete_sequence=['#f0e6d2']
             )
             st.plotly_chart(fig, use_container_width=True)
@@ -515,8 +516,8 @@ def reports_management():
             st.info("No inventory data available.")
         else:
             # Format currency columns
-            top_items['unit_price'] = top_items['unit_price'].apply(lambda x: f"${x:,.2f}")
-            top_items['total_value'] = top_items['total_value'].apply(lambda x: f"${x:,.2f}")
+            top_items['unit_price'] = top_items['unit_price'].apply(utils.format_currency)
+            top_items['total_value'] = top_items['total_value'].apply(utils.format_currency)
             
             # Display as table
             st.dataframe(top_items, use_container_width=True)
@@ -540,11 +541,11 @@ def reports_management():
         if pharmacy_inventory.empty:
             st.info("No pharmacy inventory data available.")
         else:
-            # Format currency column
-            pharmacy_inventory['total_value'] = pharmacy_inventory['total_value'].apply(lambda x: f"${x:,.2f}")
+            # Store numeric values for chart before formatting
+            pharmacy_inventory['value_numeric'] = pharmacy_inventory['total_value']
             
-            # Numeric value for chart
-            pharmacy_inventory['value_numeric'] = pd.to_numeric(pharmacy_inventory['total_value'].str.replace('$', '').str.replace(',', ''))
+            # Format currency column for display
+            pharmacy_inventory['total_value'] = pharmacy_inventory['total_value'].apply(utils.format_currency)
             
             # Display as chart
             fig = px.pie(
